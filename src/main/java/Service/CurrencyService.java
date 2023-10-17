@@ -3,6 +3,8 @@ package Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import lombok.extern.log4j.Log4j;
+import lombok.extern.log4j.Log4j2;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -11,7 +13,7 @@ import java.io.PrintWriter;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-
+@Log4j2
 public class CurrencyService extends SQLConnection{
 
     private ObjectMapper objectMapper = new ObjectMapper();
@@ -21,7 +23,7 @@ public class CurrencyService extends SQLConnection{
         ArrayNode jsonArray = objectMapper.createArrayNode();
         PrintWriter pw = response.getWriter();
         String[] url = request.getRequestURI().split("/");
-        String currency = url[url.length-1];
+        String currency = url[url.length-1].toUpperCase();
 
         if(currency == null){
             response.setStatus(400);
@@ -29,7 +31,7 @@ public class CurrencyService extends SQLConnection{
 
         try {
             Statement statement = getConnection().createStatement();
-            ResultSet rs = statement.executeQuery("SELECT * FROM Currencies c WHERE c.code = " + currency);
+            ResultSet rs = statement.executeQuery("SELECT * FROM Currencies c WHERE c.code = '" + currency + "'");
             if(rs.next()){
 
                 ObjectNode rowObject = objectMapper.createObjectNode();
@@ -47,10 +49,10 @@ public class CurrencyService extends SQLConnection{
                 rs.close();
                 statement.close();
             }else {
-                pw.print("sdsdasd");
                 response.setStatus(404);
             }
         }catch (SQLException e){
+            log.error(e.getMessage());
             response.setStatus(500);
         }
 

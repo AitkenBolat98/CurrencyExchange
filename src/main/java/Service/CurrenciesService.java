@@ -3,13 +3,17 @@ package Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import lombok.extern.log4j.Log4j2;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.*;
+import java.util.ArrayList;
 
+@Log4j2
 public class CurrenciesService extends SQLConnection {
     private ObjectMapper objectMapper = new ObjectMapper();
 
@@ -42,22 +46,41 @@ public class CurrenciesService extends SQLConnection {
         }
     }
     public void addNewCurrency(HttpServletRequest request,HttpServletResponse response) throws SQLException, IOException {
+
         PrintWriter pw = response.getWriter();
         ArrayNode jsonArray = objectMapper.createArrayNode();
 
-        String fullname = request.getParameter("fullname");
-        String code = request.getParameter("code");
-        String sign = request.getParameter("sign");
+        BufferedReader reader = request.getReader();
+        String line;
+        StringBuilder requestBody = new StringBuilder();
 
-        if(fullname == null){
+        while ((line = reader.readLine()) != null) {
+            requestBody.append(line);
+        }
+
+        String requestBodyString = requestBody.toString();
+        String[] formData = requestBodyString.split("&");
+        ArrayList<String> values = new ArrayList<String>();
+
+        for (String formDataPair : formData) {
+            String[] pair = formDataPair.split("=");
+            if (pair.length == 2) {
+                String key = pair[0];
+                String value = pair[1];
+                values.add(value);
+            }else {
+                response.setStatus(400);
+            }
 
         }
 
-        String query = "INSERT INTO Currencies(fullname,code,sign) VALUES('" + code +"','" + fullname + "','" +sign +"')";
+        String queryInsert = "INSERT INTO Currencies(fullname,code,sign) VALUES('" + values.get(0) +"','" + values.get(1) + "','"
+                + values.get(2) +"')";
+        String querySelect = "SELECT * FROM Currencies c WHERE c.code = '" + values.get(1) + "'";
         try {
             Statement statement = getConnection().createStatement();
-            statement.executeUpdate(query);
-            ResultSet rs = statement.executeQuery(query);
+            statement.executeUpdate(queryInsert);
+            ResultSet rs = statement.executeQuery(querySelect);
             if(rs.next()){
                 ObjectNode rowObject = objectMapper.createObjectNode();
 
@@ -75,6 +98,7 @@ public class CurrenciesService extends SQLConnection {
             statement.close();
         }catch (SQLException e){
             response.setStatus(500);
+            log.error(e.getMessage());
             throw new RuntimeException(e);
         }
     }
