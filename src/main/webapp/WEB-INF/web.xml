@@ -28,4 +28,12 @@
     <servlet-name>Servlets.ExchangeRateServlet</servlet-name>
     <url-pattern>/exchangeRates</url-pattern>
   </servlet-mapping>
+  <servlet>
+    <servlet-name>Servlets.ExchangeRatesServlet</servlet-name>
+    <servlet-class>Servlets.ExchangeRatesServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>Servlets.ExchangeRatesServlet</servlet-name>
+    <url-pattern>/exchangeRate/*</url-pattern>
+  </servlet-mapping>
 </web-app>

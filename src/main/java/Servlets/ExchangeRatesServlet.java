@@ -6,18 +6,17 @@ import javax.servlet.*;
 import javax.servlet.http.*;
 import javax.servlet.annotation.*;
 import java.io.IOException;
-import java.sql.SQLException;
 
-@WebServlet(name = "ExchangeRateServlet", value = "/ExchangeRateServlet")
-public class ExchangeRateServlet extends HttpServlet {
+@WebServlet(name = "ExchangeRatesServlet", value = "/ExchangeRatesServlet")
+public class ExchangeRatesServlet extends HttpServlet {
     private ExchangeRateService service = new ExchangeRateService();
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        try {
-            service.getAllExchangeRates(response);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+        service.getSpecificExchangeRate(request,response);
     }
 
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+    }
 }
