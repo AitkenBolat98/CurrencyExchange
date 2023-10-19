@@ -3,7 +3,6 @@ package Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import lombok.extern.log4j.Log4j;
 import lombok.extern.log4j.Log4j2;
 
 import javax.servlet.http.HttpServletRequest;
@@ -14,7 +13,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 @Log4j2
-public class CurrencyService extends SQLConnection{
+public class CurrencyService extends Config {
 
     private ObjectMapper objectMapper = new ObjectMapper();
 

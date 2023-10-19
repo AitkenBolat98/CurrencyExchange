@@ -7,14 +7,13 @@ import lombok.extern.log4j.Log4j2;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.*;
 import java.util.ArrayList;
 
 @Log4j2
-public class CurrenciesService extends SQLConnection {
+public class CurrenciesService extends Config {
     private ObjectMapper objectMapper = new ObjectMapper();
 
     public void getAllCurrencies(HttpServletResponse response) throws IOException {
@@ -49,30 +48,7 @@ public class CurrenciesService extends SQLConnection {
 
         PrintWriter pw = response.getWriter();
         ArrayNode jsonArray = objectMapper.createArrayNode();
-
-        BufferedReader reader = request.getReader();
-        String line;
-        StringBuilder requestBody = new StringBuilder();
-
-        while ((line = reader.readLine()) != null) {
-            requestBody.append(line);
-        }
-
-        String requestBodyString = requestBody.toString();
-        String[] formData = requestBodyString.split("&");
-        ArrayList<String> values = new ArrayList<String>();
-
-        for (String formDataPair : formData) {
-            String[] pair = formDataPair.split("=");
-            if (pair.length == 2) {
-                String key = pair[0];
-                String value = pair[1];
-                values.add(value);
-            }else {
-                response.setStatus(400);
-            }
-
-        }
+        ArrayList<String> values = getValues(request,response);
 
         String queryInsert = "INSERT INTO Currencies(fullname,code,sign) VALUES('" + values.get(0) +"','" + values.get(1) + "','"
                 + values.get(2) +"')";
