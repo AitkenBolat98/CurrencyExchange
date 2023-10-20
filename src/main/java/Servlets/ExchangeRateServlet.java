@@ -19,5 +19,9 @@ public class ExchangeRateServlet extends HttpServlet {
             throw new RuntimeException(e);
         }
     }
+    @Override
+    protected void doPut(HttpServletRequest request,HttpServletResponse response) throws  ServletException,IOException{
+        service.updateExchangeRate(request,response);
+    }
 
 }
