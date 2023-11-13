@@ -81,18 +81,7 @@ public class ExchangeRateService extends Config {
                     "WHERE bc.code = '" + base + "' AND tc.code = '" + target + "'";
             ResultSet rs = statement.executeQuery(sql);
             if (rs.next()) {
-                ObjectNode rowObject = objectMapper.createObjectNode();
-
-                rowObject.put("basecurrency_id", rs.getInt("id"));
-                rowObject.put("basecurrency_code", rs.getString("code"));
-                rowObject.put("basecurrency_fullname", rs.getString("fullname"));
-                rowObject.put("basecurrency_sign", rs.getString("sign"));
-                rowObject.put("targetcurrency_id", rs.getInt("id"));
-                rowObject.put("targetcurrency_code", rs.getString("code"));
-                rowObject.put("targetcurrency_fullname", rs.getString("fullname"));
-                rowObject.put("targetcurrency_sign", rs.getString("sign"));
-                rowObject.put("rate", rs.getDouble("rate"));
-
+                ObjectNode rowObject = getJsonNodes(rs);
                 arrayNode.add(rowObject);
             } else {
                 response.setStatus(400);
@@ -140,18 +129,7 @@ public class ExchangeRateService extends Config {
                         "WHERE bc.code = '" + values.get(0) + "' AND tc.code = '" + values.get(1) + "'";
                 ResultSet rs = statement3.executeQuery(selectNewExchangeRate);
                 if (rs.next()) {
-                    ObjectNode rowObject = objectMapper.createObjectNode();
-
-                    rowObject.put("basecurrency_id", rs.getInt("id"));
-                    rowObject.put("basecurrency_code", rs.getString("code"));
-                    rowObject.put("basecurrency_fullname", rs.getString("fullname"));
-                    rowObject.put("basecurrency_sign", rs.getString("sign"));
-                    rowObject.put("targetcurrency_id", rs.getInt("id"));
-                    rowObject.put("targetcurrency_code", rs.getString("code"));
-                    rowObject.put("targetcurrency_fullname", rs.getString("fullname"));
-                    rowObject.put("targetcurrency_sign", rs.getString("sign"));
-                    rowObject.put("rate", rs.getDouble("rate"));
-
+                    ObjectNode rowObject = getJsonNodes(rs);
                     arrayNode.add(rowObject);
                     statement3.close();
                 } else {
@@ -164,6 +142,7 @@ public class ExchangeRateService extends Config {
             statement1.close();
             statement2.close();
             getConnection().close();
+
         } catch (SQLException e) {
             log.error(e.getMessage());
             response.setStatus(500);
@@ -212,18 +191,7 @@ public class ExchangeRateService extends Config {
                         "WHERE bc.id = '" + baseCurrencyId + "' AND tc.id = '" + targetCurrencyId + "'";
                 ResultSet rs = statement3.executeQuery(selectNewExchangeRate);
                 if (rs.next()) {
-                    ObjectNode rowObject = objectMapper.createObjectNode();
-
-                    rowObject.put("basecurrency_id", rs.getInt("id"));
-                    rowObject.put("basecurrency_code", rs.getString("code"));
-                    rowObject.put("basecurrency_fullname", rs.getString("fullname"));
-                    rowObject.put("basecurrency_sign", rs.getString("sign"));
-                    rowObject.put("targetcurrency_id", rs.getInt("id"));
-                    rowObject.put("targetcurrency_code", rs.getString("code"));
-                    rowObject.put("targetcurrency_fullname", rs.getString("fullname"));
-                    rowObject.put("targetcurrency_sign", rs.getString("sign"));
-                    rowObject.put("rate", rs.getDouble("rate"));
-
+                    ObjectNode rowObject = getJsonNodes(rs);
                     arrayNode.add(rowObject);
                     statement3.close();
                 } else {
@@ -239,5 +207,22 @@ public class ExchangeRateService extends Config {
             log.error(e.getMessage());
             response.setStatus(500);
         }
+    }
+
+    private ObjectNode getJsonNodes(ResultSet rs) throws SQLException {
+
+        ObjectNode rowObject = objectMapper.createObjectNode();
+
+        rowObject.put("basecurrency_id", rs.getInt("id"));
+        rowObject.put("basecurrency_code", rs.getString("code"));
+        rowObject.put("basecurrency_fullname", rs.getString("fullname"));
+        rowObject.put("basecurrency_sign", rs.getString("sign"));
+        rowObject.put("targetcurrency_id", rs.getInt("id"));
+        rowObject.put("targetcurrency_code", rs.getString("code"));
+        rowObject.put("targetcurrency_fullname", rs.getString("fullname"));
+        rowObject.put("targetcurrency_sign", rs.getString("sign"));
+        rowObject.put("rate", rs.getDouble("rate"));
+
+        return rowObject;
     }
 }

@@ -22,29 +22,18 @@ public class ExchangeService extends Config{
         PrintWriter pw = response.getWriter();
         ArrayNode arrayNode = objectMapper.createArrayNode();
 
-        String[] uri = request.getRequestURI().toString().split("\\?");
-        String  keyValuePairs = uri[uri.length-1];
+        String baseCurrency = request.getParameter("from");
+        String targetCurrency = request.getParameter("to");
+        Integer amountString = Integer.valueOf(request.getParameter("amount"));
 
 
-        String[] formData = keyValuePairs.split("&");
-        ArrayList<String> values = new ArrayList<String>();
-
-        for (String formDataPair : formData) {
-            String[] pair = formDataPair.split("=");
-            if (pair.length == 2) {
-                String value = pair[1];
-                values.add(value);
-            }else {
-                response.setStatus(400);
-            }
-        }
         try {
             Statement statement = getConnection().createStatement();
             String sql = "SELECT bc.*, tc.*, er.rate " +
                     "FROM exchangerates er " +
                     "INNER JOIN currencies bc ON er.basecurrencyid = bc.id " +
                     "INNER JOIN currencies tc ON er.targetcurrencyid = tc.id " +
-                    "WHERE bc.code = '" + values.get(0) + "' AND tc.code = '" + values.get(1) + "'";
+                    "WHERE bc.code = '" + baseCurrency + "' AND tc.code = '" + targetCurrency + "'";
             ResultSet rs = statement.executeQuery(sql);
             if (rs.next()) {
                 ObjectNode rowObject = objectMapper.createObjectNode();
@@ -58,10 +47,9 @@ public class ExchangeService extends Config{
                 rowObject.put("targetcurrency_fullname", rs.getString("fullname"));
                 rowObject.put("targetcurrency_sign", rs.getString("sign"));
                 rowObject.put("rate", rs.getDouble("rate"));
-                rowObject.put("amount",values.get(2));
+                rowObject.put("amount",amountString);
                 double rate = Double.parseDouble(rs.getString("rate"));
-                double value = Double.parseDouble(values.get(2));
-                rowObject.put("convertedAmount",value * rate);
+                rowObject.put("convertedAmount",amountString * rate);
                 arrayNode.add(rowObject);
             } else {
                 response.setStatus(400);
